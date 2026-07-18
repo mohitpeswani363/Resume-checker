@@ -1,10 +1,10 @@
 # Railway deployment config
-# Docs: https://docs.railway.app/reference/config-as-code
+# Docs: https://docs.railway.com/config-as-code/reference
 
-build:
-  builder: DOCKERFILE
-  dockerfilePath: Dockerfile
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
 
-deploy:
-  healthcheckPath: /api/health
-  restartPolicyType: ON_FAILURE
+[deploy]
+healthcheckPath = "/api/health"
+restartPolicyType = "ON_FAILURE"
