@@ -1,0 +1,13 @@
+node_modules
+client/node_modules
+server/node_modules
+client/dist
+server/db/*.db
+.env
+.env.*
+!.env.example
+!server/.env.example
+!client/.env.example
+.git
+*.md
+!README.md
