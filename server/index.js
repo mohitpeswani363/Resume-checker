@@ -18,11 +18,22 @@ async function startServer() {
 
   app.locals.db = db;
 
-  const allowedOrigins = [CLIENT_URL, 'http://localhost:5173'].filter(Boolean);
+  const clientUrls = (process.env.CLIENT_URL || '')
+    .split(',')
+    .map((url) => url.trim())
+    .filter(Boolean);
+  const allowedOrigins = Array.from(
+    new Set([...clientUrls, 'http://localhost:5173', 'http://localhost:3000'])
+  );
+
   app.use(
     cors({
       origin(origin, callback) {
-        if (!origin || allowedOrigins.includes(origin)) {
+        if (
+          !origin ||
+          allowedOrigins.includes(origin) ||
+          origin.endsWith('.vercel.app')
+        ) {
           callback(null, true);
         } else {
           callback(new Error('Not allowed by CORS'));
