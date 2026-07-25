@@ -1,5 +1,6 @@
 require('dotenv').config();
 
+const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const cors = require('cors');
@@ -17,9 +18,16 @@ async function startServer() {
 
   app.locals.db = db;
 
+  const allowedOrigins = [CLIENT_URL, 'http://localhost:5173'].filter(Boolean);
   app.use(
     cors({
-      origin: [CLIENT_URL, 'http://localhost:5173'],
+      origin(origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
+      },
       credentials: true,
     })
   );
@@ -33,7 +41,21 @@ async function startServer() {
   app.use('/api/check', checkRoutes);
   app.use('/api/upload', uploadRoutes);
 
-  const clientDist = path.join(__dirname, '../client/dist');
+  app.use((req, res, next) => {
+    if (req.path.startsWith('/api')) {
+      return res.status(404).json({ error: 'API route not found.' });
+    }
+    next();
+  });
+
+  const clientDistCandidates = [
+    path.join(__dirname, 'client', 'dist'),
+    path.join(__dirname, '..', 'client', 'dist'),
+  ];
+  const clientDist =
+    clientDistCandidates.find((dir) => fs.existsSync(path.join(dir, 'index.html'))) ||
+    clientDistCandidates[1];
+
   app.use(express.static(clientDist));
   app.get('*', (req, res, next) => {
     if (req.path.startsWith('/api')) return next();
@@ -42,8 +64,21 @@ async function startServer() {
     });
   });
 
-  app.listen(PORT, () => {
-    console.log(`Resume Checker API running on http://localhost:${PORT}`);
+  app.use((err, _req, res, _next) => {
+    if (err.message === 'Not allowed by CORS') {
+      return res.status(403).json({ error: 'Origin not allowed.' });
+    }
+    console.error('Unhandled error:', err);
+    return res.status(500).json({ error: 'Internal server error.' });
+  });
+
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Resume Checker API running on port ${PORT}`);
+    if (fs.existsSync(path.join(clientDist, 'index.html'))) {
+      console.log(`Serving client from ${clientDist}`);
+    } else {
+      console.warn(`Client build not found at ${clientDist} — API only mode`);
+    }
   });
 }
 

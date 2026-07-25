@@ -20,7 +20,7 @@ COPY server/package*.json ./
 RUN npm ci --omit=dev
 
 COPY server/ ./
-COPY --from=client-build /app/client/dist ../client/dist
+COPY --from=client-build /app/client/dist ./client/dist
 
 ENV NODE_ENV=production
 ENV PORT=3001

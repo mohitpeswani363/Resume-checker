@@ -2,9 +2,13 @@ const fs = require('fs');
 const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
 
-const DB_PATH = path.join(__dirname, 'resume_checker.db');
+const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'resume_checker.db');
 
 function openDatabase() {
+  const dir = path.dirname(DB_PATH);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
   return new sqlite3.Database(DB_PATH);
 }
 
@@ -141,13 +145,21 @@ function getRecentChecks(db, limit = 5, userId = null) {
   const params = userId ? [userId, limit] : [limit];
 
   return all(db, sql, params).then((rows) =>
-    rows.map((row) => ({
-      id: row.id,
-      score: row.score,
-      feedback: JSON.parse(row.feedback),
-      sourceType: row.source_type || 'text',
-      createdAt: row.created_at,
-    }))
+    rows.map((row) => {
+      let parsedFeedback = {};
+      try {
+        parsedFeedback = typeof row.feedback === 'string' ? JSON.parse(row.feedback) : (row.feedback || {});
+      } catch {
+        parsedFeedback = { summary: 'Previous check', score: row.score };
+      }
+      return {
+        id: row.id,
+        score: row.score,
+        feedback: parsedFeedback,
+        sourceType: row.source_type || 'text',
+        createdAt: row.created_at,
+      };
+    })
   );
 }
 

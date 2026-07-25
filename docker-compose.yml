@@ -12,8 +12,9 @@ services:
       JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       CLIENT_URL: http://localhost:3001
+      DB_PATH: /app/data/resume_checker.db
     volumes:
-      - resume-data:/app/db
+      - resume-data:/app/data
     restart: unless-stopped
 
 volumes:

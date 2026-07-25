@@ -18,7 +18,9 @@ services:
           type: web
           name: resume-checker
           property: host
+      - key: DB_PATH
+        value: /app/data/resume_checker.db
     disk:
       name: resume-data
-      mountPath: /app/db
+      mountPath: /app/data
       sizeGB: 1

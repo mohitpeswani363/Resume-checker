@@ -96,7 +96,12 @@ docker compose up --build
 1. Push to GitHub
 2. Create a new project on [Railway](https://railway.app)
 3. Deploy from repo — Railway uses `Dockerfile` via `railway.toml`
-4. Set `JWT_SECRET` and `ANTHROPIC_API_KEY` in Railway variables
+4. In **Variables**, set:
+   - `JWT_SECRET` — long random string (required)
+   - `ANTHROPIC_API_KEY` — optional, for Claude analysis
+   - `CLIENT_URL` — your public Railway URL (e.g. `https://your-app.up.railway.app`)
+5. In **Settings → Networking**, click **Generate Domain** if you do not have a public URL yet
+6. Redeploy after changing variables
 
 ## API
 

@@ -6,9 +6,9 @@ const { signToken, requireAuth } = require('../middleware/auth');
 const router = express.Router();
 
 router.post('/register', async (req, res) => {
-  const { email, password, name } = req.body;
+  const { email, password, name } = req.body || {};
 
-  if (!email || !password || !name) {
+  if (typeof email !== 'string' || typeof password !== 'string' || typeof name !== 'string' || !email.trim() || !password || !name.trim()) {
     return res.status(400).json({ error: 'email, password, and name are required.' });
   }
 
@@ -38,9 +38,9 @@ router.post('/register', async (req, res) => {
 });
 
 router.post('/login', async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password } = req.body || {};
 
-  if (!email || !password) {
+  if (typeof email !== 'string' || typeof password !== 'string' || !email.trim() || !password) {
     return res.status(400).json({ error: 'email and password are required.' });
   }
 

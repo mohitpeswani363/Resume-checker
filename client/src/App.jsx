@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 const MIN_CHARS = 200;
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+// Empty VITE_API_URL in production = same-origin (/api/...) when server serves the built client
+const API_URL =
+  import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '');
 
 function App() {
   const [resumeText, setResumeText] = useState('');
@@ -274,13 +276,53 @@ function App() {
           <section className="fade-in mt-10 rounded-3xl border border-slate-200 bg-white p-6 shadow-lg sm:p-8">
             <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h2 className="text-2xl font-bold text-slate-900">Your results</h2>
+                <div className="mb-2 flex flex-wrap items-center gap-2">
+                  <h2 className="text-2xl font-bold text-slate-900">Your roast</h2>
+                  {result.feedback.source && (
+                    <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium uppercase tracking-wide text-slate-600">
+                      {result.feedback.source === 'ai' ? 'AI powered' : 'Rule-based'}
+                    </span>
+                  )}
+                  {result.feedback.aiFallback && (
+                    <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
+                      AI fallback
+                    </span>
+                  )}
+                </div>
                 <p className="mt-1 text-slate-600">{result.feedback.summary}</p>
               </div>
               <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-violet-100 text-2xl font-bold text-violet-600">
                 {result.score}
               </div>
             </div>
+
+            {result.feedback.roast && (
+              <div className="mb-6 rounded-2xl border border-orange-200 bg-gradient-to-br from-orange-50 to-rose-50 p-5">
+                <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-orange-700">
+                  The roast
+                </h3>
+                <p className="text-base leading-relaxed text-orange-950">{result.feedback.roast}</p>
+              </div>
+            )}
+
+            {result.feedback.suggestions?.length > 0 && (
+              <div className="mb-6">
+                <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-violet-700">
+                  How to level up
+                </h3>
+                <div className="space-y-3">
+                  {result.feedback.suggestions.map((item) => (
+                    <div
+                      key={`${item.title}-${item.detail}`}
+                      className="rounded-2xl border border-violet-100 bg-violet-50/60 px-4 py-3"
+                    >
+                      <p className="font-semibold text-violet-900">{item.title}</p>
+                      <p className="mt-1 text-sm leading-relaxed text-violet-950/90">{item.detail}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {result.feedback.strengths?.length > 0 && (
               <div className="mb-6">
@@ -339,22 +381,27 @@ function App() {
           <section className="fade-in mt-10">
             <h2 className="mb-4 text-lg font-semibold text-slate-800">Your recent checks</h2>
             <div className="space-y-2">
-              {history.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm"
-                >
-                  <div>
-                    <p className="font-medium text-slate-800">{item.feedback.summary}</p>
-                    <p className="text-xs text-slate-500">
-                      {new Date(item.createdAt).toLocaleDateString()} · {item.sourceType}
-                    </p>
+              {history.map((item) => {
+                const dateStr = item.createdAt
+                  ? new Date(item.createdAt.includes('T') ? item.createdAt : item.createdAt.replace(' ', 'T') + 'Z').toLocaleDateString()
+                  : 'Recent';
+                return (
+                  <div
+                    key={item.id}
+                    className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm"
+                  >
+                    <div>
+                      <p className="font-medium text-slate-800">{item.feedback?.summary || 'Resume check'}</p>
+                      <p className="text-xs text-slate-500">
+                        {dateStr} · {item.sourceType}
+                      </p>
+                    </div>
+                    <span className="rounded-full bg-violet-100 px-3 py-1 font-semibold text-violet-600">
+                      {item.score}
+                    </span>
                   </div>
-                  <span className="rounded-full bg-violet-100 px-3 py-1 font-semibold text-violet-600">
-                    {item.score}
-                  </span>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </section>
         )}
