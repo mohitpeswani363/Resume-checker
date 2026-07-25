@@ -1,6 +1,6 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
-const { createUser, findUserByEmail, findUserById } = require('../db/database');
+const { createUser, findUserByEmail, findUserById } = require('../db.js');
 const { signToken, requireAuth } = require('../middleware/auth');
 
 const router = express.Router();

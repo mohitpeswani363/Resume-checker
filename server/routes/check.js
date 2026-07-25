@@ -1,6 +1,6 @@
 const express = require('express');
 const { analyzeResume, MIN_RESUME_LENGTH } = require('../services/resumeAnalyzer');
-const { saveCheck, getRecentChecks } = require('../db/database');
+const { saveCheck, getRecentChecks } = require('../db.js');
 const { optionalAuth, requireAuth } = require('../middleware/auth');
 
 const router = express.Router();

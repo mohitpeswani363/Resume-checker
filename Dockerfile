@@ -22,6 +22,7 @@ RUN npm ci --omit=dev
 
 # Copy all server source folders explicitly
 COPY server/index.js ./index.js
+COPY server/db.js ./db.js
 COPY server/routes ./routes
 COPY server/db ./db
 COPY server/middleware ./middleware

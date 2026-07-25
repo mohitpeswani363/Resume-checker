@@ -7,7 +7,7 @@ const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const checkRoutes = require('./routes/check');
 const uploadRoutes = require('./routes/upload');
-const { initializeDatabase } = require('./db/database');
+const { initializeDatabase } = require('./db.js');
 
 const PORT = process.env.PORT || 3001;
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
