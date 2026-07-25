@@ -16,10 +16,18 @@ WORKDIR /app
 
 RUN apk add --no-cache python3 make g++
 
+# Copy and install server dependencies
 COPY server/package*.json ./
 RUN npm ci --omit=dev
 
-COPY server/ ./
+# Copy all server source folders explicitly
+COPY server/index.js ./index.js
+COPY server/routes ./routes
+COPY server/db ./db
+COPY server/middleware ./middleware
+COPY server/services ./services
+
+# Copy built client assets into expected location
 COPY --from=client-build /app/client/dist ./client/dist
 
 ENV NODE_ENV=production
