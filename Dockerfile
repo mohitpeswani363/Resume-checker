@@ -23,8 +23,7 @@ COPY server/ ./
 COPY --from=client-build /app/client/dist ./client/dist
 
 ENV NODE_ENV=production
-ENV PORT=3001
-
-EXPOSE 3001
+# PORT is injected by Railway at runtime
+EXPOSE 8080
 
 CMD ["node", "index.js"]
